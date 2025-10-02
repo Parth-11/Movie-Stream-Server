@@ -13,6 +13,7 @@ func main() {
 
 	router.GET("/hello", func(ctx *gin.Context) { ctx.String(200, "Hello World") })
 	router.GET("/movies", controller.GetMovies())
+	router.GET("/movie/:imdb_id", controller.GetMovieByID())
 
 	if err := router.Run(":8080"); err != nil {
 		fmt.Println("Failed to Start server on the port 8080,", err)
