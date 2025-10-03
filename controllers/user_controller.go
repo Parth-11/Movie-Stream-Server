@@ -128,8 +128,8 @@ func LoginUser() gin.HandlerFunc {
 			Role:            foundUser.Role,
 			Email:           foundUser.Email,
 			FavouriteGenres: foundUser.FavouriteGenres,
-			Token:           foundUser.Token,
-			RefreshToken:    foundUser.RefreshToken,
+			Token:           token,
+			RefreshToken:    refreshToken,
 		})
 	}
 }

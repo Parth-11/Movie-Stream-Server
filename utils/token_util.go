@@ -21,6 +21,7 @@ type SignedDetails struct {
 }
 
 var secret_key string = os.Getenv("SECRET_KEY")
+var secret_refresh_key string = os.Getenv("SECRET_REFRESH_KEY")
 var userCollection *mongo.Collection = database.OpenCollection("users")
 
 func GenerateAllToken(email string, firstName string, lastName string, role string, userID string) (string, string, error) {
@@ -53,13 +54,13 @@ func GenerateAllToken(email string, firstName string, lastName string, role stri
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "Movie-Stream",
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 7 * time.Hour)),
 		},
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
 
-	refreshSignedToken, err := refreshToken.SignedString([]byte(os.Getenv("SECRET_REFRESH_KEY")))
+	refreshSignedToken, err := refreshToken.SignedString([]byte(secret_refresh_key))
 	if err != nil {
 		return "", "", err
 	}
