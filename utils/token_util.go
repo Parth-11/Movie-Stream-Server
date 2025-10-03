@@ -2,10 +2,12 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"os"
 	"time"
 
 	database "github.com/Parth-11/Movie-Stream-Server/database"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -88,4 +90,40 @@ func UpdateAllTokens(userID string, token string, refreshToken string) error {
 	}
 
 	return nil
+}
+
+func GetAccessToken(ctx *gin.Context) (string, error) {
+	authHeader := ctx.Request.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", errors.New("Authorization header is required")
+	}
+
+	tokenString := authHeader[len("Bearer "):]
+	if tokenString == "" {
+		return "", errors.New("Bearer token is required")
+	}
+
+	return tokenString, nil
+}
+
+func ValidateToken(tokenString string) (*SignedDetails, error) {
+	claims := &SignedDetails{}
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (any, error) {
+		return []byte(secret_key), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, err
+	}
+
+	if claims.ExpiresAt.Time.Before(time.Now()) {
+		return nil, errors.New("Token has expired")
+	}
+
+	return claims, nil
 }
