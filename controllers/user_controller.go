@@ -8,6 +8,7 @@ import (
 
 	database "github.com/Parth-11/Movie-Stream-Server/database"
 	model "github.com/Parth-11/Movie-Stream-Server/models"
+	"github.com/Parth-11/Movie-Stream-Server/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -107,5 +108,28 @@ func LoginUser() gin.HandlerFunc {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 			return
 		}
+
+		token, refreshToken, err := utils.GenerateAllToken(foundUser.Email, foundUser.FirstName, foundUser.LastName, foundUser.Role, foundUser.UserID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate tokens"})
+			return
+		}
+
+		err = utils.UpdateAllTokens(foundUser.UserID, token, refreshToken)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update the tokens"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, model.UserResponse{
+			UserID:          foundUser.UserID,
+			FirstName:       foundUser.FirstName,
+			LastName:        foundUser.LastName,
+			Role:            foundUser.Role,
+			Email:           foundUser.Email,
+			FavouriteGenres: foundUser.FavouriteGenres,
+			Token:           foundUser.Token,
+			RefreshToken:    foundUser.RefreshToken,
+		})
 	}
 }
