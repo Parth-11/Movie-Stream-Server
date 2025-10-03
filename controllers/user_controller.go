@@ -81,3 +81,7 @@ func RegisterUser() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, result)
 	}
 }
+
+func LoginUser() gin.HandlerFunc {
+	return func(ctx *gin.Context) {}
+}
